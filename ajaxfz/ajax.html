@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>EMS</title>
+    <style type="text/css">
+        ul{
+            list-style: none;
+        }
+        #ems{
+            position: absolute;
+            left: 50%;
+            width: 400px;
+            height: auto;
+            margin-left: -200px;
+            background: lightGreen;
+            text-align: center;
+            min-height: 50px;
+            height: 500px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+        #ems input{
+            height: 25px;
+            margin-top: 10px;
+        }
+        #list{
+            background: lightBlue;
+        }
+        #list li{
+            text-align: left;
+        }
+    </style>
+
+</head>
+<body>
+<div id="ems">
+    <div>
+        <input type="text" id="code">
+        <input type="button" value="查询" id="btn">
+    </div>
+    <div id="listDiv">
+        <ul id="list"></ul>
+    </div>
+</div>
+<script type="text/javascript">
+    function ajax(data){
+        //data={data:"",dataType:"xml/json",type:"get/post"，url:"",asyn:"true/false",success:function(){},failure:function(){}}
+
+        //data:{username:123,password:456}
+        //data = 'username=123&password=456';
+        //第一步：创建xhr对象
+        var xhr=null;
+        if(window.XMLHttpRequest){
+            xhr=new XMLHttpRequest();
+        }else{
+            xhr=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        //第二步：准备发送前的一些配置参数
+        var type=data.type == 'get'?'get':'post';;
+        var url='';
+        if(data.url){
+            url=data.url;
+            if(type=='get'){
+                url +='?'+ data.data + '&_t' + new Date().getTime();
+            }
+        }
+        var flag=data.asyn == 'true'?'true':'false';
+        xhr.open(type,url,flag);
+        //第三步：执行发送的动作
+        if(type == 'get'){
+           xhr.send(null);
+        }else if(type == 'post'){
+           xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");//使服务器可以正常解析url
+           xhr.send(data.data);
+        };
+        //第四步：指定回调函数
+        xhr.onreadystatechange=function(){
+            if(this.readyState==4){
+                if(this.status==200){
+                    if(typeof data.success == 'function'){
+                        var d = data.dataType == 'xml'?xhr.responseXML:xhr.responseText;
+                        data.success(d);
+                    }
+                }else{
+                    if(typeof data.failure == 'function'){
+                        data.failure();
+                    }
+                }
+            }
+        };
+    };
+
+
+    window.onload=function(){
+        var btn=document.getElementById('btn');
+        btn.onclick=function(){
+            var code=document.getElementById('code').value;
+            var data={
+                data:'code='+code,
+                url:'data.php',
+                type:'get',
+                dataType:'json',
+                success:function(data){
+                    var data=JSON.parse(data);
+                    var li='';
+                    if(data.errcode==0){
+                        var list=data.data.data;
+                        for(i=0;i<list.length;i++){
+                            var item=list[i];
+                            var time=item.time;
+                            var context=item.context;
+                            li +='<li><p>'+ time +'</p><p>'+ context +'</p></li>';
+                            document.getElementById('list').innerHTML=li;
+                        }
+                    }else{
+                        var info = data.errmsg;
+                        document.getElementById('list').innerHTML=info;
+                    }
+                }
+            };
+            ajax(data);
+        };
+    }
+</script>
+</body>
+</html>

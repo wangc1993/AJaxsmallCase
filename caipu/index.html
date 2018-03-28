@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>菜谱</title>
+    <style>
+        .all {
+            margin-top: 30px;
+        }
+        .xh {
+            float: left;
+            margin-right: 20px;
+            color: red;
+            font-style: italic;
+            font-size: 30px;
+        }
+        #menu {
+            width: 500px;
+        }
+        #more{
+            cursor: pointer;
+        }
+    </style>
+    <script src="jquery-2.2.0.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            var btn=$('#btnSearch');
+            btn.click(function(){
+                queryAjax(setUrl());
+            });
+
+            var more=$('#more');
+            more.click(function(){
+                queryAjax(setUrl());
+            });
+        });
+        function setUrl(){
+            var pn=$('#last').val();
+            var txt=$('#txtSearch').val();
+            var url='http://apis.juhe.cn/cook/query?key=0118ef0987f236b107e4ba8254247a5e&menu=%E8%A5%BF%E7%BA%A2%E6%9F%BF&rn=1&pn='+ pn +'&dtype=jsonp&menu='+txt;
+            return url;
+        };
+        function queryAjax(url){
+            // var menu=$('#menu');
+            // menu.text('正在加载...');
+            $.ajax({
+                type:'get',
+                dataType:'jsonp',
+                url:url,
+                success:function(data){
+                    /*menu.text('');*/
+                    if(data == 1){
+                        $('#more').html('没有更多菜品!').unbind('click');
+                        return false;
+                    };
+                    if(data.resultcode==200){
+                        // console.log(data.result.data[0].title);
+                        for(var i=0;i<data.result.data.length;i++){
+                            var result=data.result.data[i];
+                            var div=$('<div class="all"></div>');
+                            var h2=$('<h2>菜名：'+ result.title +'</h2>');
+                            div.append(h2);
+                            var intro=$('<p><strong>介绍：</strong>'+ result.imtro +'</p>');
+                            div.append(intro);
+                            var ingredients=$('<p><strong>主料：</strong>'+ result.ingredients +'</p>');
+                            div.append(ingredients);
+                            var burden=$('<p><strong>配料：</strong>'+ result.burden +'</p>');
+                            div.append(burden);
+                            for(var j=0;j<result.albums.length;j++){
+                                var img=$('<img src='+ result.albums[j] +'>');
+                                div.append(img);
+                            }
+                            var steps=$('<div class="steps"></div>');
+                            for(var k=0;k<result.steps.length;k++){
+                                var step=$('<div class="c"></div>');
+                                var img=$('<img src='+ result.steps[k].img +'>');
+                                var p=$('<p>'+ result.steps[k].step +'</p>');
+                                step.append(p);
+                                step.append(img);
+                                steps.append(step);
+                            }
+
+
+                            div.append(steps);
+                            $('#menu').append(div);
+                            var hr=$('<hr>');
+                            $('#menu').append(hr);
+                        };
+
+                        var now = parseInt($('#last').val()) + 3;
+                        $('#last').val(now);
+
+                        $('#more').show();
+
+                    }else{
+                        menu.text('未找到相关菜谱');
+                    }
+                },
+                error:function(){
+                    menu.text('错误');
+                }
+            });
+        };
+    </script>
+</head>
+<body>
+<input type="text"  id="txtSearch"> <input type="button" value="搜索" id="btnSearch">
+
+<div id="menu">
+
+</div>
+<div style="display: none;" id="more">加载更多...</div>
+<input type="hidden" id="last" value="0">
+</body>
+</html>

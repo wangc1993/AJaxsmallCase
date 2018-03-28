@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>jqueryJsonp的调用</title>
+</head>
+<script src="jquery-1.11.2.js"></script>
+<script type="text/javascript">
+    $(function(){
+        var code='北京';
+        $.ajax({
+            type:"get",
+            async:"false",
+            url:"jsonp.php",//以后可以跨域试试
+            dataType:"jsonp",
+            //jsonp: "qwe",//传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(默认为:callback)
+            //jsonpCallback:"liudehua",//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名(类似：jQuery1102016820125747472048_1450147653563(["zhangsan", "lisi", "wangwu"]);)
+            success : function(data){
+                console.log(data[0]);
+            },
+            error:function(){
+                console.log('fail');
+            }
+        });
+    });
+</script>
+<body>
+</body>
+</html>
